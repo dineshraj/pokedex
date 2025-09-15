@@ -1,17 +1,20 @@
-'use client';
-
-import Pokedex from '../components/Pokedex';
+import { GameClient, POKEDEXES } from 'pokenode-ts';
+import PokedexComponent from '../components/Pokedex';
 import '../styles/page.scss';
 
-const Home = () => {
-  // getPokedex(generationID);
+export const api = new GameClient();
+const generationID = POKEDEXES.KANTO;
+
+const Page = async () => {
+  // const api = new GameClient();
+  const pokedex = await api.getPokedexById(generationID);
 
   return (
     <div data-testid="pokedex">
       <div className="flex items-center min-h-screen justify-center">
         <main className="flex flex-col row-start-2 sm:items-start">
           <div className="pokedex-container m-8 relative">
-            <Pokedex />
+            <PokedexComponent pokedex={pokedex} />
           </div>
         </main>
       </div>
@@ -19,4 +22,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Page;

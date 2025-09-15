@@ -1,44 +1,27 @@
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { GameClient, POKEDEXES } from 'pokenode-ts';
+import { Pokedex } from 'pokenode-ts';
 
-// type Pokedex = {};
+const PokedexComponent = ({ pokedex }: { pokedex: Pokedex }) => {
 
-export const api = new GameClient();
-const generation = 'kantoPokedex';
-const generationID = POKEDEXES.KANTO;
-
-const Pokedex = () => {
-  const [pokedex, setPokedex] = useState<[]>([]);
-
-  const getPokedex = async (generationID: number) => {
-    return await api.getPokedexById(generationID);
-  };
-
-  useEffect(() => {
-    getPokedex(generationID);
-    //   let pokedex;
-    //   const localStorage = window.localStorage;
-    //   if (localStorage.getItem(generation) === null) {
-    //     try {
-    //       pokedex = await api.getPokedexById(region);
-    //       localStorage.setItem(generation, JSON.stringify(pokedex));
-    //     } catch (e: unknown) {
-    //       console.error('Could not fetch Pokédex', e);
-    //     }
-    //   }
-    // };
-  }, []);
+  /*
+    on initial render (useEffect) i should store it in state
+    when they click the button
+    get a random number between 1-151
+    check localstorage for whether the pokemon has already been seen
+    otherwise request it
+    otherwise use it
+  */
 
   return (
     <Image
       src="/pokedex.svg"
+      data-testid="pokedex-image"
       alt="pokedex"
       priority
       width="1178"
       height="891"
-    />
+    ></Image>
   );
 };
 
-export default Pokedex;
+export default PokedexComponent;

@@ -1,26 +1,18 @@
-import { render } from '@testing-library/react';
-import PokedexComponent, { api } from '../../../src/components/Pokedex';
+import PokedexComponent from '@/src/components/Pokedex';
+import { render, screen } from '@testing-library/react';
+import { Pokedex } from 'pokenode-ts';
 
-describe('Pokedex', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
+// test that it returns an image
+
+const mockPokedex = {} as Pokedex;
+
+describe('PokedexComponent', () => {
+  it('renders the pokedex', () => {
+    render(<PokedexComponent pokedex={mockPokedex} />);
+
+    const image = screen.getByTestId('pokedex-image');
+
+    expect(image).toBeVisible();
+
   });
-
-  it('calls the pokenode api with the right value', () => {
-    const expectedParam = 2;
-    const getPokedexByIdSpy = jest.spyOn(api, 'getPokedexById');
-
-    render(<PokedexComponent />);
-
-    expect(getPokedexByIdSpy).toHaveBeenCalledWith(expectedParam);
-  });
-
-  // it('calls localStorage setItem if the key does not exist', () => {
-  //   const generationKey = 'kandoPokedex';
-  //   const localStorageSpy = jest.spyOn(global, 'Storage');
-
-  //   render(<PokedexComponent />);
-
-  //   expect(localStorageSpy).toHaveBeenCalledWith(generationKey, '');
-  // });
 });

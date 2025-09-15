@@ -26,10 +26,11 @@
   },
   "include": [
     "next-env.d.ts",
+    "jest.setup.ts",
     "**/*.ts",
     "**/*.tsx",
     "test",
-    ".next/types/**/*.ts",
-  ],
+    ".next/types/**/*.ts"
+, "jest-setup.js"  ],
   "exclude": ["node_modules"]
 }
