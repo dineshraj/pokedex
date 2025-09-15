@@ -15,7 +15,8 @@
     "next": "15.5.2",
     "pokenode-ts": "^1.20.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "sass-embedded": "^1.92.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
@@ -31,10 +32,12 @@
     "babel-jest": "^30.1.2",
     "jest": "^30.1.3",
     "jest-environment-jsdom": "^30.1.2",
+    "jest-localstorage-mock": "^2.4.26",
     "sass": "^1.92.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "sass-embedded": "^1.92.1"
   }
 }
