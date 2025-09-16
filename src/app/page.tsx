@@ -1,12 +1,14 @@
-import { GameClient, POKEDEXES } from 'pokenode-ts';
+import { GameClient } from 'pokenode-ts';
 import PokedexComponent from '../components/Pokedex';
 import '../styles/page.scss';
+import { POKEDEX } from './constants';
 
-export const api = new GameClient();
-const generationID = POKEDEXES.KANTO;
+type PageProps = {
+  api?: Pick<GameClient, 'getPokedexById'>;
+};
 
-const Page = async () => {
-  const pokedex = await api.getPokedexById(generationID);
+const Page = async ({ api = new GameClient() }: PageProps) => {
+  const pokedex = await api.getPokedexById(POKEDEX);
 
   return (
     <div data-testid="pokedex">
