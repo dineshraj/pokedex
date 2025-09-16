@@ -6,7 +6,6 @@ export const api = new GameClient();
 const generationID = POKEDEXES.KANTO;
 
 const Page = async () => {
-  // const api = new GameClient();
   const pokedex = await api.getPokedexById(generationID);
 
   return (

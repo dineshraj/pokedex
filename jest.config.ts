@@ -4,7 +4,7 @@
  */
 
 import type { Config } from 'jest';
-import nextJest from 'next/jest.js';
+import nextJest from 'next/jest';
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
@@ -98,7 +98,9 @@ const config: Config = {
   ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1'
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -165,10 +167,10 @@ const config: Config = {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  // testMatch: [
-    // '**/__tests__/**/*.?([mc])[jt]s?(x)'
+  testMatch: [
+    '**/test/**/*.?([mc])[jt]s?(x)'
     //   "**/?(*.)+(spec|test).?([mc])[jt]s?(x)"
-  // ],
+  ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
@@ -186,13 +188,13 @@ const config: Config = {
 
   // A map from regular expressions to paths to transformers
   // transform: {
-    // '^.+\\.(ts|tsx)$': 'ts-jest',
-    // '^.+\\.(js)$': 'babel-jest'
+  // '^.+\\.(ts|tsx)$': 'ts-jest',
+  // '^.+\\.(js)$': 'babel-jest'
   // },
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [
-    //   "/node_modules/",
-    //   "\\.pnp\\.[^\\/]+$"
+  //   "/node_modules/",
+  //   "\\.pnp\\.[^\\/]+$"
   // ]
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

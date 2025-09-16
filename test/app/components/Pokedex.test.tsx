@@ -1,18 +1,17 @@
-import PokedexComponent from '@/src/components/Pokedex';
-import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Pokedex } from 'pokenode-ts';
 
-// test that it returns an image
+import { render, screen } from '@testing-library/react';
+import PokedexComponent from '@/src/components/Pokedex';
 
-const mockPokedex = {} as Pokedex;
+const mockPokedex = {} as unknown as Pokedex;
 
 describe('PokedexComponent', () => {
-  it('renders the pokedex', () => {
+  it('renders the pokedex', async () => {
     render(<PokedexComponent pokedex={mockPokedex} />);
 
     const image = screen.getByTestId('pokedex-image');
 
     expect(image).toBeVisible();
-
   });
 });

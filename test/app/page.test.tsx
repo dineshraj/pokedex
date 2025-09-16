@@ -1,8 +1,13 @@
-import Home from '@/src/app/page';
-import { render, screen } from '@testing-library/react';
-// import { GameClient, POKEDEXES } from 'pokenode-ts';
-import { api } from '../../src/app/page';
+import '@testing-library/jest-dom';
 import { Pokedex } from 'pokenode-ts';
+
+import { render, screen } from '@testing-library/react';
+
+import { api } from '../../src/app/page';
+import Home from '@/src/app/page';
+
+
+// import { GameClient, POKEDEXES } from 'pokenode-ts';
 
 // class GameClientMock {
 //   constructor () {
@@ -37,7 +42,7 @@ describe('Page', () => {
     jest.resetModules();
   });
 
-  it.only('renders the home page', async () => {
+  it('renders the home page', async () => {
     const home = await Home();
 
     render(home);
