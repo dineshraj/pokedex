@@ -26,11 +26,11 @@
   },
   "include": [
     "next-env.d.ts",
-    "jest.setup.ts",
     "**/*.ts",
     "**/*.tsx",
     "test",
-    ".next/types/**/*.ts"
-, "jest-setup.js"  ],
+    ".next/types/**/*.ts",
+    "./jest.setup.ts"
+, "src/data/pokedex.js"  ],
   "exclude": ["node_modules"]
 }
