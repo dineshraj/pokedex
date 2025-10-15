@@ -1,26 +1,34 @@
+'use client';
+
 import Image from 'next/image';
 import Button from './Button';
+import getRandomPokemonNumber from '@/src/lib/pokemonNumber';
+import kantoPokedex from '@/src/data/pokedex';
+import { KantoPokedex } from '../types';
 
-// import '../styles/components/pokedex.scss'
-// import { Pokedex } from 'pokenode-ts';
-// import Button from './Button';
-
-export interface Pokedex {
-  name: string;
-  url: string;
+interface PokedexComponentProps {
+  kantoPokedex: KantoPokedex[]
 }
 
 
 
-const PokedexComponent = ({ pokedex }: { pokedex: Pokedex[] }) => {
-  /*
-    on initial render (useEffect) i should store it in state
-    when they click the button
-    get a random number between 1-151
-    check localstorage for whether the pokemon has already been seen
-    otherwise request it
-    otherwise use it
-  */
+ const getPokemon = async () => {
+    const randomPokemonNumber = getRandomPokemonNumber();
+    console.log("🚀 ~ getPokemon ~ randomPokemonNumber:", randomPokemonNumber)
+
+  
+    /*
+      when they click the button
+      get a random number between 1-151
+      check localstorage for whether the pokemon has already been seen
+      otherwise request it
+      otherwise use it
+    */
+  }
+
+const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps ) => {
+  
+ ;
 
   const imageStyle = {
     width: 'auto',
@@ -43,7 +51,7 @@ const PokedexComponent = ({ pokedex }: { pokedex: Pokedex[] }) => {
           height="50"
           style={imageStyle}
         />
-        <Button clickHandler={} />
+        <Button clickHandler={getPokemon} />
       </div>
     </div>
   );

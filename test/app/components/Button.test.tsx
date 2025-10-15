@@ -25,5 +25,7 @@ describe('Button', () => {
     renderComponent();
     const button = screen.getByTestId('scan-button');
     fireEvent.click(button);
+
+    expect(mockClickHandler).toHaveBeenCalled();
   });
 });

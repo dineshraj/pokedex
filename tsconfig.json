@@ -31,6 +31,6 @@
     "test",
     ".next/types/**/*.ts",
     "./jest.setup.ts"
-, "src/data/pokedex.js"  ],
+, "src/data/pokedex.ts"  ],
   "exclude": ["node_modules"]
 }
