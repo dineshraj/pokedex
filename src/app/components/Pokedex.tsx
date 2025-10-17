@@ -32,12 +32,6 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
       return localStoragePokemonData;
     }
 
-    console.log('shouldnt get to here......');
-
-    /*
-    If the random pokemon 
-    */
-
     const pokemon = kantoPokedex.find(
       (pokemon) => pokemon.entry_number === randomPokemonNumber
     );

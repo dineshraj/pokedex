@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PokedexComponent from '@/src/app/components/Pokedex';
-// import * as rand
-// omPokemonNumber from '../../../src/lib/pokemonNumber';
 
 const mockPokedex = [
   {
@@ -17,39 +15,35 @@ const mockPokedex = [
   }
 ];
 
+jest.mock('../../../src/lib/pokemonNumber', () => {
+  return jest.fn().mockReturnValue(1);
+});
+
 const mockPokemonData = {
   flavor_text_entries: 'plant boy', // from { flavor_text_entries[0] } from https://pokeapi.co/api/v2/pokemon-species/1/
   cry: 'someone with downs syndrome', // from { cries: { latest: "url" } { from "https://pokeapi.co/api/v2/pokemon/1/",
   sprite: 'url' // from { sprites: { front_default: "url" } } from https://pokeapi.co/api/v2/pokemon/1
 };
 
-jest.mock('../../../src/lib/pokemonNumber', () => {
-  return jest.fn().mockReturnValue(1);
-});
-
-//! mock local storage here too (maybe abstract it to another file)
-const getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
-
-const fetchMock = () => {
-  jest.spyOn(window, 'fetch').mockResolvedValue({
-    ok: true,
-    json: jest.fn().mockResolvedValue(mockPokemonData)
-  } as unknown as Response);
-};
-
-// jest.spyOn(global, 'fetch').mockResolvedValue({
-//     ok: true,
-//     json: jest.fn().mockResolvedValue(mockPokemonData),
-//   } as unknown as Response);
-
 describe('PokedexComponent', () => {
-  // beforeEach(() => {
+  let getItemSpy: jest.SpyInstance;
+  let fetchMock: any;
 
-  // });
+  beforeEach(() => {
+    //! (maybe abstract it to another file)
+    getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
 
-  // afterEach(() => {
-  //   jest.restoreAllMocks();
-  // });
+    fetchMock = () => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue(mockPokemonData)
+      } as unknown as Response);
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   describe('rendering', () => {
     it('renders the pokedex', () => {
@@ -92,7 +86,7 @@ describe('PokedexComponent', () => {
       );
     });
 
-    it('does not make any fetch calls if the data is in local storage', async () => {
+    it('does not make any fetch calls if the data is in localstorage', async () => {
       const user = userEvent.setup();
       const existingData = [
         {
