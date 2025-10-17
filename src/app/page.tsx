@@ -2,9 +2,7 @@
 import PokedexComponent from './components/Pokedex';
 import '../styles/page.scss';
 // import { POKEDEX } from './constants';
-import kantoPokedex from '../data/pokedex'; // local data
-console.log("🚀 ~ kantoPokedex:", kantoPokedex)
-
+import kantoPokedex from '../data/pokedex'; //! local data for ease
 
 const Page = /*async*/ (/*{ api = new GameClient() }: PageProps */) => {
   // const pokedex = await api.getPokedexById(POKEDEX); // this is now json
@@ -25,9 +23,9 @@ export default Page;
 /*
   if I want to make this static..............
 
-    * make an object with each pokemon in an array like this (statically, no API calls)
+    * make an object with each pokemon in an array like this (statically, no API calls) in data.pokdex.ts
 
-    store each pokemon as { name, url } taken from https://pokeapi.co/api/v2/pokedex/2 (this is the URL for Kanto) in the "pokemon_entries" property
+    store each pokemon as { entry_number, name, url } taken from https://pokeapi.co/api/v2/pokedex/2 (this is the URL for Kanto) in the "pokemon_entries" property
     like:
     { 
       entry_number: 1
@@ -55,6 +53,7 @@ export default Page;
     - on load, get the local storage property
     - parse JSON
     - map over the array and use a sort function to order them
+    - STORE IT 
     - display the first one
     - then this enables the D-Pad to cycle back and forth through the pokemon
 

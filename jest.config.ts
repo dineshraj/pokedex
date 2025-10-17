@@ -85,16 +85,16 @@ const config: Config = {
 
   // An array of file extensions your modules use
   moduleFileExtensions: [
-  'js',
-  //   "mjs",
-  //   "cjs",
-  // "jsx",
-  'ts',
-  //   "mts",
-  //   "cts",
-  'tsx'
-  //   "json",
-  //   "node"
+    'js',
+    //   "mjs",
+    //   "cjs",
+    // "jsx",
+    'ts',
+    //   "mts",
+    //   "cts",
+    'tsx'
+    //   "json",
+    //   "node"
   ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
@@ -168,9 +168,9 @@ const config: Config = {
 
   // The glob patterns Jest uses to detect test files
   testMatch: [
-  '**/test/**/*.?([mc])[jt]s?(x)'
-  //   "**/?(*.)+(spec|test).?([mc])[jt]s?(x)"
-  ],
+    '**/test/**/*.?([mc])[jt]s?(x)'
+    //   "**/?(*.)+(spec|test).?([mc])[jt]s?(x)"
+  ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
