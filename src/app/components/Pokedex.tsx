@@ -3,8 +3,13 @@
 import Image from 'next/image';
 import Button from './Button';
 import getRandomPokemonNumber from '@/src/lib/pokemonNumber';
-import { KantoPokedex } from '../types';
-import checkPokemonIsInLocalStorage from '@/src/lib/queryLocalStorage';
+import { KantoPokedex, localStorageDataModel } from '../types';
+import {
+  checkPokemonIsInLocalStorage,
+  savePokemonToLocalstorage
+} from '@/src/lib/localStorage';
+import { useState } from 'react';
+import { POKEMON_ERROR_MESSAGE, SPECIES_ERROR_MESSAGE } from '../constants';
 
 interface PokedexComponentProps {
   kantoPokedex: KantoPokedex[];
@@ -18,44 +23,58 @@ const imageStyle = {
 
 // !Reminder - parameterized for easy mocking
 const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
-  const getPokemon = async () => {
-    const randomPokemonNumber = getRandomPokemonNumber();
+  const [currentPokemon, setCurrentPokemon] =
+    useState<localStorageDataModel | null>();
+
+  const clickHandler = () => {
+    const randomPokemonNumber = 1; //getRandomPokemonNumber();
+
     const localStoragePokemonData =
       checkPokemonIsInLocalStorage(randomPokemonNumber);
-
-    console.log(
-      '🚀 ~ getPokemon ~ localStoragePokemonData:',
-      localStoragePokemonData
-    );
-
     if (localStoragePokemonData) {
-      return localStoragePokemonData;
+      setCurrentPokemon(localStoragePokemonData);
+    } else {
+      setPokemon(randomPokemonNumber);
     }
-
-    const pokemon = kantoPokedex.find(
-      (pokemon) => pokemon.entry_number === randomPokemonNumber
-    );
-
-    // if (pokemon) {
-    // try {
-    const response = await fetch(pokemon.url);
-    const data = await response.json();
-    console.log('data after fetch call', data);
-
-    // } catch (e) {
-    // }
   };
 
-  /*
+  const setPokemon = async (randomPokemonNumber: number) => {
+    const pokemon = kantoPokedex.find(
+      (pokemon) => pokemon.entry_number === 1 //randomPokemonNumber
+    );
 
-    // ! IGNORE A LITTLE BIT
+    if (pokemon) {
+      let pokemonSpeciesData;
+      let pokemonData;
+      try {
+        const pokemonSpeciesResponse = await fetch(pokemon.url);
+        pokemonSpeciesData = await pokemonSpeciesResponse.json();
+      } catch (e) {
+        console.error(SPECIES_ERROR_MESSAGE);
+        return;
+      }
+      const pokemonUrl = pokemonSpeciesData.varieties[0].pokemon.url;
 
-      when they click the button
-      get a random number between 1-151
-      check localstorage for whether the pokemon has already been seen
-      otherwise 
-      otherwise use it
-    */
+      try {
+        const pokemonDataResponse = await fetch(pokemonUrl);
+        pokemonData = await pokemonDataResponse.json();
+      } catch (e) {
+        console.error(POKEMON_ERROR_MESSAGE);
+        return;
+      }
+
+      const dataToStore: localStorageDataModel = {
+        entry_number: pokemon.entry_number,
+        name: pokemon.name,
+        flavorText: pokemonSpeciesData.flavor_text_entries[0].flavour_text,
+        soundFile: pokemonData.cries.latest,
+        sprite: pokemonData.sprites.front_default
+      };
+
+      savePokemonToLocalstorage(dataToStore);
+      setCurrentPokemon(dataToStore);
+    }
+  };
 
   return (
     <div
@@ -72,7 +91,8 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
           height="50"
           style={imageStyle}
         />
-        <Button clickHandler={getPokemon} />
+        <div>{currentPokemon?.name}</div>
+        <Button clickHandler={clickHandler} />
       </div>
     </div>
   );

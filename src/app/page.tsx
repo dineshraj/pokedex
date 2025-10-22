@@ -38,7 +38,7 @@ export default Page;
     ! We are storing the above in a local object so we don't need server side requests
 
     Then on the client side fetch the species URL (https://pokeapi.co/api/v2/pokemon-species/1) 
-    - fetch the "flavour text entries[0]" for the description
+    - fetch the "flavour text entries[0]" for the description //!this is only text so need to find text-to-speach thing
     - look at varieties[0].pokemon.url
     - fetch THAT URL too ("https://pokeapi.co/api/v2/pokemon/1/")
 
