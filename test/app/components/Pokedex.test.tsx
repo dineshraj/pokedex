@@ -6,21 +6,25 @@ import {
   POKEMON_ERROR_MESSAGE,
   SPECIES_ERROR_MESSAGE
 } from '@/src/app/constants';
-import { localStorageDataModel } from '@/src/app/types';
-import { PokemonSpecies, PokemonSprites } from 'pokenode-ts';
+import { LocalStorageDataModel } from '@/src/app/types';
+import { PokemonCries, PokemonSpecies, PokemonSprites } from 'pokenode-ts';
 
 // what you get when you call https://pokeapi.co/api/v2/pokedex/2
 // even though we are not for now
 const mockPokedex = [
   {
     entry_number: 1,
-    name: 'Bulbasaur',
-    url: 'https://pokeapi.co/api/v2/pokemon-species/1/'
+    pokemon_species: {
+      name: 'Bulbasaur',
+      url: 'https://pokeapi.co/api/v2/pokemon-species/1/'
+    }
   },
   {
     entry_number: 2,
-    name: 'ivysaur',
-    url: 'https://pokeapi.co/api/v2/pokemon-species/2/'
+    pokemon_species: {
+      name: 'ivysaur',
+      url: 'https://pokeapi.co/api/v2/pokemon-species/2/'
+    }
   }
 ];
 
@@ -30,7 +34,7 @@ jest.mock('../../../src/lib/pokemonNumber', () => {
 
 // what is needed when calling https://pokeapi.co/api/v2/pokemon-species/1/
 const speciesData = {
-  flavor_text_entries: [{ flavour_text: 'plant boy' }],
+  flavor_text_entries: [{ flavor_text: 'plant boy' }],
   varieties: [
     {
       pokemon: {
@@ -44,7 +48,7 @@ const speciesData = {
 const pokemonData = {
   cries: {
     latest: 'cry url'
-  } as unknown,
+  } as unknown as PokemonCries,
   sprites: {
     front_default: 'sprite url'
   } as unknown as PokemonSprites
@@ -65,7 +69,7 @@ describe('PokedexComponent', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    jest.resetAllMocks();
+    // jest.resetAllMocks();
   });
 
   describe('rendering', () => {
@@ -97,39 +101,43 @@ describe('PokedexComponent', () => {
   describe('Scan Button', () => {
     it('makes a fetch call if any data does not already exist in localstorage', async () => {
       const user = userEvent.setup();
-      getItemSpy.mockReturnValue('');
+      getItemSpy.mockReturnValueOnce(null);
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
       await user.click(button);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
       );
     });
 
     it('makes a fetch call if the correct pokemon data does not already exist in localstorage', async () => {
       const user = userEvent.setup();
+      
       const existingData = [
         {
           entry_number: 13,
-          name: 'bulbasaur',
+          name: 'weedle',
+          cries: {
+            latest: ''
+          },
           flavorText:
-            'A strange seed was planted on its back at birth.The plant sprouts and grows with this POKéMON.',
+            '',
           soundFile:
-            'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/1.ogg',
+            '',
           sprite:
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
+            ''
         }
       ];
-      getItemSpy.mockReturnValue(JSON.stringify(existingData));
+      getItemSpy.mockReturnValueOnce(JSON.stringify(existingData));
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
       await user.click(button);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
       );
       expect(getItemSpy).toHaveBeenCalled();
@@ -141,6 +149,9 @@ describe('PokedexComponent', () => {
         {
           entry_number: 1,
           name: 'bulbasaur',
+          cries: {
+            latest: ''
+          },
           flavorText:
             'A strange seed was planted on its back at birth.The plant sprouts and grows with this POKéMON.',
           soundFile:
@@ -149,32 +160,32 @@ describe('PokedexComponent', () => {
             'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
         }
       ];
-      getItemSpy.mockReturnValue(JSON.stringify(existingData));
+      getItemSpy.mockReturnValueOnce(JSON.stringify(existingData));
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
       await user.click(button);
 
-      expect(global.fetch).not.toHaveBeenCalled();
+      expect(fetchMockSpy).not.toHaveBeenCalled();
     });
 
     it('it saves the pokemon object in local storage if it was not already saved', async () => {
       const user = userEvent.setup();
-      getItemSpy.mockReturnValue(null);
+      getItemSpy.mockReturnValueOnce(null);
 
       fetchMockSpy
         .mockResolvedValueOnce({
           ok: true,
-          json: jest.fn().mockResolvedValue(speciesData)
+          json: jest.fn().mockResolvedValueOnce(speciesData)
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: jest.fn().mockResolvedValue(pokemonData)
+          json: jest.fn().mockResolvedValueOnce(pokemonData)
         });
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
-      const expectedLocalstorageData: localStorageDataModel = {
+      const expectedLocalstorageData: LocalStorageDataModel = {
         entry_number: 1,
         name: 'Bulbasaur',
         flavorText: 'plant boy',
@@ -185,11 +196,11 @@ describe('PokedexComponent', () => {
       const button = screen.getByTestId('scan-button');
       await user.click(button);
 
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMockSpy).toHaveBeenCalledTimes(2);
+      expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
       );
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon/1/'
       );
 
@@ -201,7 +212,7 @@ describe('PokedexComponent', () => {
 
     it('it retrieves the pokemon object from local storage if it was already saved', async () => {
       const user = userEvent.setup();
-      const expectedLocalstorageData: localStorageDataModel[] = [
+      const expectedLocalstorageData: LocalStorageDataModel[] = [
         {
           entry_number: 1,
           name: 'Bulbasaur',
@@ -211,7 +222,7 @@ describe('PokedexComponent', () => {
         }
       ];
 
-      getItemSpy.mockReturnValue(JSON.stringify(expectedLocalstorageData));
+      getItemSpy.mockReturnValueOnce(JSON.stringify(expectedLocalstorageData));
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -225,8 +236,8 @@ describe('PokedexComponent', () => {
 
     it('outputs an error if the pokemon species api call fails', async () => {
       const user = userEvent.setup();
-      getItemSpy.mockReturnValue(null);
-      fetchMockSpy.mockRejectedValueOnce(new Error(SPECIES_ERROR_MESSAGE));
+      getItemSpy.mockReturnValueOnce(null);
+      fetchMockSpy.mockRejectedValue(new Error(SPECIES_ERROR_MESSAGE));
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -236,12 +247,12 @@ describe('PokedexComponent', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(SPECIES_ERROR_MESSAGE);
     });
 
-    it('outputs an error if the pokemon species api call fails', async () => {
+    it('outputs an error if the pokemon api call fails', async () => {
       const user = userEvent.setup();
-      getItemSpy.mockReturnValue('');
-      fetchMockSpy
-        .mockRejectedValueOnce(new Error(SPECIES_ERROR_MESSAGE))
-        .mockRejectedValueOnce(new Error(POKEMON_ERROR_MESSAGE));
+      console.log('species data', speciesData);
+
+      getItemSpy.mockReturnValueOnce(JSON.stringify([{}]));
+      fetchMockSpy.mockRejectedValueOnce(new Error(POKEMON_ERROR_MESSAGE));
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 

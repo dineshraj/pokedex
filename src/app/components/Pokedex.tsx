@@ -3,13 +3,14 @@
 import Image from 'next/image';
 import Button from './Button';
 import getRandomPokemonNumber from '@/src/lib/pokemonNumber';
-import { KantoPokedex, localStorageDataModel } from '../types';
+import { KantoPokedex, LocalStorageDataModel } from '../types';
 import {
   checkPokemonIsInLocalStorage,
   savePokemonToLocalstorage
 } from '@/src/lib/localStorage';
 import { useState } from 'react';
 import { POKEMON_ERROR_MESSAGE, SPECIES_ERROR_MESSAGE } from '../constants';
+import { Pokemon, PokemonSpecies } from 'pokenode-ts';
 
 interface PokedexComponentProps {
   kantoPokedex: KantoPokedex[];
@@ -24,13 +25,18 @@ const imageStyle = {
 // !Reminder - parameterized for easy mocking
 const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
   const [currentPokemon, setCurrentPokemon] =
-    useState<localStorageDataModel | null>();
+    useState<LocalStorageDataModel | null>();
 
   const clickHandler = () => {
-    const randomPokemonNumber = 1; //getRandomPokemonNumber();
+    const randomPokemonNumber = getRandomPokemonNumber();
+    console.log(
+      '🚀 ~ clickHandler ~ randomPokemonNumber:',
+      randomPokemonNumber
+    );
 
     const localStoragePokemonData =
       checkPokemonIsInLocalStorage(randomPokemonNumber);
+
     if (localStoragePokemonData) {
       setCurrentPokemon(localStoragePokemonData);
     } else {
@@ -40,17 +46,17 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
 
   const setPokemon = async (randomPokemonNumber: number) => {
     const pokemon = kantoPokedex.find(
-      (pokemon) => pokemon.entry_number === 1 //randomPokemonNumber
+      (pokemon) => pokemon.entry_number === randomPokemonNumber
     );
 
     if (pokemon) {
-      let pokemonSpeciesData;
-      let pokemonData;
+      let pokemonSpeciesData: PokemonSpecies;
+      let pokemonData: Pokemon;
       try {
-        const pokemonSpeciesResponse = await fetch(pokemon.url);
+        const pokemonSpeciesResponse = await fetch(pokemon.pokemon_species.url);
         pokemonSpeciesData = await pokemonSpeciesResponse.json();
-      } catch (e) {
-        console.error(SPECIES_ERROR_MESSAGE);
+      } catch (e: any) {
+        console.error(e.message);
         return;
       }
       const pokemonUrl = pokemonSpeciesData.varieties[0].pokemon.url;
@@ -58,15 +64,15 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
       try {
         const pokemonDataResponse = await fetch(pokemonUrl);
         pokemonData = await pokemonDataResponse.json();
-      } catch (e) {
-        console.error(POKEMON_ERROR_MESSAGE);
+      } catch (e: any) {
+        console.error(e.message);
         return;
       }
 
-      const dataToStore: localStorageDataModel = {
+      const dataToStore: LocalStorageDataModel = {
         entry_number: pokemon.entry_number,
-        name: pokemon.name,
-        flavorText: pokemonSpeciesData.flavor_text_entries[0].flavour_text,
+        name: pokemon.pokemon_species.name,
+        flavorText: pokemonSpeciesData.flavor_text_entries[0].flavor_text,
         soundFile: pokemonData.cries.latest,
         sprite: pokemonData.sprites.front_default
       };

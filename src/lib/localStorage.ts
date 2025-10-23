@@ -1,7 +1,7 @@
 'use client';
 
 import { LOCALSTORAGE_KEY } from '../app/constants';
-import { localStorageDataModel } from '../app/types';
+import { LocalStorageDataModel } from '../app/types';
 
 const getLocalstorageData = () => {
   return localStorage.getItem(LOCALSTORAGE_KEY);
@@ -9,19 +9,19 @@ const getLocalstorageData = () => {
 
 export const checkPokemonIsInLocalStorage = (entryNumber: number) => {
   const storedData = getLocalstorageData();
+  console.log("🚀 ~ checkPokemonIsInLocalStorage ~ storedData:", storedData)
 
   if (!storedData) return null;
 
-
-  const storedDataAsArray: localStorageDataModel[] = JSON.parse(storedData);
+  const storedDataAsArray: LocalStorageDataModel[] = JSON.parse(storedData);
 
   const pokemon = storedDataAsArray.find(
-    (pokemon: localStorageDataModel) => pokemon.entry_number === entryNumber
+    (pokemon: LocalStorageDataModel) => pokemon.entry_number === entryNumber
   );
 
   if (!pokemon) return null;
 
-  const { name, flavorText, soundFile, sprite }: localStorageDataModel =
+  const { name, flavorText, soundFile, sprite }: LocalStorageDataModel =
     pokemon;
 
   return {
@@ -34,14 +34,14 @@ export const checkPokemonIsInLocalStorage = (entryNumber: number) => {
 };
 
 export const savePokemonToLocalstorage = (
-  pokemonData: localStorageDataModel
+  pokemonData: LocalStorageDataModel
 ) => {
   const storedData = getLocalstorageData();
 
   let dataToStore = [];
 
   if (storedData) {
-    const storedDataAsArray: localStorageDataModel[] = JSON.parse(storedData);
+    const storedDataAsArray: LocalStorageDataModel[] = JSON.parse(storedData);
     dataToStore = [...storedDataAsArray, pokemonData];
   } else {
     dataToStore = [pokemonData];
