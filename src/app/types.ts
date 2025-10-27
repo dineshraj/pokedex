@@ -1,3 +1,4 @@
+import { Pokemon } from 'pokenode-ts';
 export interface KantoPokedex {
   entry_number: number;
   pokemon_species: {
@@ -11,5 +12,14 @@ export interface LocalStorageDataModel {
   name: string;
   flavorText: string;
   soundFile: string;
-  sprite: string | null;
+  sprite: string;
 }
+
+interface PokemonCries {
+  cries: {
+    legacy: string;
+    latest: string;
+  };
+}
+
+export type PokemonUpdated = Pokemon & PokemonCries;

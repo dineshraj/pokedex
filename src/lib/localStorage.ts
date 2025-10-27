@@ -9,7 +9,6 @@ const getLocalstorageData = () => {
 
 export const checkPokemonIsInLocalStorage = (entryNumber: number) => {
   const storedData = getLocalstorageData();
-  console.log("🚀 ~ checkPokemonIsInLocalStorage ~ storedData:", storedData)
 
   if (!storedData) return null;
 
@@ -19,6 +18,7 @@ export const checkPokemonIsInLocalStorage = (entryNumber: number) => {
     (pokemon: LocalStorageDataModel) => pokemon.entry_number === entryNumber
   );
 
+  //!
   if (!pokemon) return null;
 
   const { name, flavorText, soundFile, sprite }: LocalStorageDataModel =
@@ -35,7 +35,7 @@ export const checkPokemonIsInLocalStorage = (entryNumber: number) => {
 
 export const savePokemonToLocalstorage = (
   pokemonData: LocalStorageDataModel
-) => {
+) => {  
   const storedData = getLocalstorageData();
 
   let dataToStore = [];

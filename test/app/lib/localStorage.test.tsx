@@ -32,7 +32,7 @@ describe('queryLocalStorage', () => {
         sprite:
           'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
       };
-      getItemSpy.mockReturnValue(JSON.stringify([expectedData]));
+      getItemSpy.mockReturnValueOnce(JSON.stringify([expectedData]));
 
       const retrievedData = checkPokemonIsInLocalStorage(randomPokemonNumber);
 
@@ -41,7 +41,7 @@ describe('queryLocalStorage', () => {
     });
 
     it('returns null if there is no localstorage data at all', () => {
-      getItemSpy.mockReturnValue(null);
+      getItemSpy.mockReturnValueOnce(null);
 
       const retrievedData = checkPokemonIsInLocalStorage(randomPokemonNumber);
 
@@ -56,11 +56,11 @@ describe('queryLocalStorage', () => {
           name: 'charmander',
           flavorText: '',
           soundFile: 'sound-file',
-          sprite: ''
+          sprite: 'http://spriteurl.com'
         }
       ];
 
-      getItemSpy.mockReturnValue(JSON.stringify(localStorageReturnValue));
+      getItemSpy.mockReturnValueOnce(JSON.stringify(localStorageReturnValue));
       const retrievedData = checkPokemonIsInLocalStorage(randomPokemonNumber);
       expect(retrievedData).toBeNull();
     });
@@ -71,7 +71,7 @@ describe('queryLocalStorage', () => {
         name: 'charmander',
         flavorText: 'charrrr',
         soundFile: '',
-        sprite: ''
+        sprite: 'http://spriteurl.com'
       };
 
       savePokemonToLocalstorage(newPokemonData);
@@ -90,7 +90,7 @@ describe('queryLocalStorage', () => {
           name: 'charmander',
           flavorText: '',
           soundFile: '',
-          sprite: ''
+          sprite: 'http://spriteurl.com'
         }
       ];
 
@@ -99,10 +99,10 @@ describe('queryLocalStorage', () => {
         name: 'pikachu',
         flavorText: 'pika',
         soundFile: '',
-        sprite: ''
+        sprite: 'http://spriteurl.com'
       };
 
-      getItemSpy.mockReturnValue(JSON.stringify(localStorageReturnValue));
+      getItemSpy.mockReturnValueOnce(JSON.stringify(localStorageReturnValue));
 
       savePokemonToLocalstorage(newPokemonData);
 

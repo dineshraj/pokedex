@@ -6,11 +6,14 @@ import {
   POKEMON_ERROR_MESSAGE,
   SPECIES_ERROR_MESSAGE
 } from '@/src/app/constants';
-import { LocalStorageDataModel } from '@/src/app/types';
-import { PokemonCries, PokemonSpecies, PokemonSprites } from 'pokenode-ts';
+import { LocalStorageDataModel, PokemonUpdated } from '@/src/app/types';
+import { PokemonSpecies, PokemonSprites } from 'pokenode-ts';
+// import getRandomPokemonNumber from '@/src/lib/pokemonNumber';
 
-// what you get when you call https://pokeapi.co/api/v2/pokedex/2
-// even though we are not for now
+jest.mock('../../../src/lib/pokemonNumber', () => {
+  return () => 1;
+});
+
 const mockPokedex = [
   {
     entry_number: 1,
@@ -28,10 +31,6 @@ const mockPokedex = [
   }
 ];
 
-jest.mock('../../../src/lib/pokemonNumber', () => {
-  return jest.fn().mockReturnValue(1);
-});
-
 // what is needed when calling https://pokeapi.co/api/v2/pokemon-species/1/
 const speciesData = {
   flavor_text_entries: [{ flavor_text: 'plant boy' }],
@@ -48,10 +47,22 @@ const speciesData = {
 const pokemonData = {
   cries: {
     latest: 'cry url'
-  } as unknown as PokemonCries,
+  } as unknown as PokemonUpdated,
   sprites: {
-    front_default: 'sprite url'
+    front_default: 'http://spriteurl.com'
   } as unknown as PokemonSprites
+};
+
+const fetchMockData = (fetchMockSpy: jest.SpyInstance) => {
+  fetchMockSpy
+    .mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValueOnce(speciesData)
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValueOnce(pokemonData)
+    });
 };
 
 describe('PokedexComponent', () => {
@@ -61,6 +72,7 @@ describe('PokedexComponent', () => {
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
+    window.localStorage.clear();
     getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
     setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
     fetchMockSpy = jest.spyOn(window, 'fetch');
@@ -69,7 +81,7 @@ describe('PokedexComponent', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    // jest.resetAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('rendering', () => {
@@ -88,7 +100,9 @@ describe('PokedexComponent', () => {
 
       expect(image).toBeVisible();
     });
+  });
 
+  describe('Scan Button', () => {
     it('renders the scan button', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -96,12 +110,12 @@ describe('PokedexComponent', () => {
 
       expect(button).toBeVisible();
     });
-  });
 
-  describe('Scan Button', () => {
     it('makes a fetch call if any data does not already exist in localstorage', async () => {
       const user = userEvent.setup();
       getItemSpy.mockReturnValueOnce(null);
+
+      fetchMockData(fetchMockSpy);
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -115,23 +129,20 @@ describe('PokedexComponent', () => {
 
     it('makes a fetch call if the correct pokemon data does not already exist in localstorage', async () => {
       const user = userEvent.setup();
-      
       const existingData = [
         {
           entry_number: 13,
           name: 'weedle',
-          cries: {
-            latest: ''
-          },
-          flavorText:
-            '',
-          soundFile:
-            '',
-          sprite:
-            ''
+          flavorText: '',
+          soundFile: '',
+          sprite: 'http://spriteurl.com'
         }
       ];
+
       getItemSpy.mockReturnValueOnce(JSON.stringify(existingData));
+
+      fetchMockData(fetchMockSpy);
+
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
@@ -149,9 +160,6 @@ describe('PokedexComponent', () => {
         {
           entry_number: 1,
           name: 'bulbasaur',
-          cries: {
-            latest: ''
-          },
           flavorText:
             'A strange seed was planted on its back at birth.The plant sprouts and grows with this POKéMON.',
           soundFile:
@@ -173,15 +181,7 @@ describe('PokedexComponent', () => {
       const user = userEvent.setup();
       getItemSpy.mockReturnValueOnce(null);
 
-      fetchMockSpy
-        .mockResolvedValueOnce({
-          ok: true,
-          json: jest.fn().mockResolvedValueOnce(speciesData)
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: jest.fn().mockResolvedValueOnce(pokemonData)
-        });
+      fetchMockData(fetchMockSpy);
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -190,7 +190,7 @@ describe('PokedexComponent', () => {
         name: 'Bulbasaur',
         flavorText: 'plant boy',
         soundFile: 'cry url',
-        sprite: 'sprite url'
+        sprite: 'http://spriteurl.com'
       };
 
       const button = screen.getByTestId('scan-button');
@@ -218,11 +218,13 @@ describe('PokedexComponent', () => {
           name: 'Bulbasaur',
           flavorText: 'plant boy',
           soundFile: 'cry url',
-          sprite: 'sprite url'
+          sprite: 'http://spriteurl.com'
         }
       ];
 
       getItemSpy.mockReturnValueOnce(JSON.stringify(expectedLocalstorageData));
+
+      fetchMockData(fetchMockSpy);
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -236,8 +238,9 @@ describe('PokedexComponent', () => {
 
     it('outputs an error if the pokemon species api call fails', async () => {
       const user = userEvent.setup();
+
       getItemSpy.mockReturnValueOnce(null);
-      fetchMockSpy.mockRejectedValue(new Error(SPECIES_ERROR_MESSAGE));
+      fetchMockSpy.mockRejectedValueOnce(new Error(SPECIES_ERROR_MESSAGE));
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -249,10 +252,15 @@ describe('PokedexComponent', () => {
 
     it('outputs an error if the pokemon api call fails', async () => {
       const user = userEvent.setup();
-      console.log('species data', speciesData);
 
-      getItemSpy.mockReturnValueOnce(JSON.stringify([{}]));
-      fetchMockSpy.mockRejectedValueOnce(new Error(POKEMON_ERROR_MESSAGE));
+      getItemSpy.mockReturnValueOnce(null);
+
+      fetchMockSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: jest.fn().mockResolvedValueOnce(speciesData)
+        })
+        .mockRejectedValueOnce(new Error(POKEMON_ERROR_MESSAGE));
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
@@ -260,6 +268,62 @@ describe('PokedexComponent', () => {
       await user.click(button);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(POKEMON_ERROR_MESSAGE);
+    });
+  });
+
+  describe('Pokedex Screen', () => {
+    it('renders the pokedex screen component if there is a current pokemon set', async () => {
+      const user = userEvent.setup();
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await user.click(button);
+      const pokedexScreen = await screen.findByTestId('pokedex-screen');
+
+      expect(pokedexScreen).toBeVisible();
+    });
+
+    it('renders the pokedex screen image with the correct attributes', async () => {
+      const user = userEvent.setup();
+
+      const expectedLocalstorageData: LocalStorageDataModel[] = [
+        {
+          entry_number: 1,
+          name: 'Bulbasaur',
+          flavorText: 'plant boy',
+          soundFile: 'cry url',
+          sprite: 'http://spriteurl.com'
+        }
+      ];
+
+      getItemSpy.mockReturnValueOnce(JSON.stringify(expectedLocalstorageData));
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await user.click(button);
+
+      const pokedexSprite = screen.queryByTestId('pokedex-screen-sprite');
+
+      expect(pokedexSprite).toHaveAttribute('src');
+      expect(pokedexSprite).toHaveAttribute('alt', 'Bulbasaur');
+    });
+
+    it('does not render the pokedex screen component if there is no pokemon set', async () => {
+      const user = userEvent.setup();
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const pokedexScreen = screen.queryByTestId('pokedex-screen');
+
+      expect(pokedexScreen).toBeNull();
     });
   });
 });
