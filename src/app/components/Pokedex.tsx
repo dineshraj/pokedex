@@ -20,14 +20,14 @@ interface PokedexComponentProps {
 const imageStyle = {
   width: 'auto',
   height: '100%',
-  maxWidth: 'fit-content'
+  maxWidth: 'fit-content',
+  filter: 'drop-shadow(0px 0px 100px #27272c)'
 };
 
 // !Reminder - parameterized for easy mocking
 const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
   let randomPokemonNumber: number;
-  const [currentPokemon, setCurrentPokemon] =
-    useState<LocalStorageDataModel>()
+  const [currentPokemon, setCurrentPokemon] = useState<LocalStorageDataModel>();
 
   const clickHandler = () => {
     randomPokemonNumber = getRandomPokemonNumber();
@@ -43,19 +43,18 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
   };
 
   const setPokemon = async (randomPokemonNumber: number) => {
-    
-    const pokemon = kantoPokedex.find(
-      (pokemon) => {
-        return pokemon.entry_number === randomPokemonNumber
-      }
-    );
+    const pokemon = kantoPokedex.find((pokemon) => {
+      return pokemon.entry_number === randomPokemonNumber;
+    });
 
     if (pokemon) {
       let pokemonSpeciesData: PokemonSpecies;
       let pokemonData: PokemonUpdated;
 
       try {
-        const pokemonSpeciesResponse: Response = await fetch(pokemon.pokemon_species.url);
+        const pokemonSpeciesResponse: Response = await fetch(
+          pokemon.pokemon_species.url
+        );
         pokemonSpeciesData = await pokemonSpeciesResponse.json();
       } catch (e: any) {
         console.error(SPECIES_ERROR_MESSAGE);
@@ -63,7 +62,7 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
       }
 
       const pokemonUrl = pokemonSpeciesData.varieties[0].pokemon.url;
-      
+
       try {
         const pokemonDataResponse = await fetch(pokemonUrl);
         pokemonData = await pokemonDataResponse.json();
@@ -71,7 +70,7 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
         console.error(POKEMON_ERROR_MESSAGE);
         return;
       }
-      
+
       const dataToStore: LocalStorageDataModel = {
         entry_number: pokemon.entry_number,
         name: pokemon.pokemon_species.name,
@@ -100,7 +99,12 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
           height="50"
           style={imageStyle}
         />
-        {currentPokemon && <Screen name={currentPokemon.name} spriteUrl={currentPokemon.sprite} />}
+        {currentPokemon && (
+          <Screen
+            name={currentPokemon.name}
+            spriteUrl={currentPokemon.sprite}
+          />
+        )}
         <Button clickHandler={clickHandler} />
       </div>
     </div>
