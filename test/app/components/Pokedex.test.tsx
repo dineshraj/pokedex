@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PokedexComponent from '@/src/app/components/Pokedex';
 import {
@@ -65,6 +65,10 @@ const fetchMockData = (fetchMockSpy: jest.SpyInstance) => {
     });
 };
 
+const userEventSetup = () => {
+  return userEvent.setup({ delay: null });
+};
+
 describe('PokedexComponent', () => {
   let getItemSpy: jest.SpyInstance;
   let setItemSpy: jest.SpyInstance;
@@ -72,6 +76,7 @@ describe('PokedexComponent', () => {
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     window.localStorage.clear();
     getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
     setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
@@ -80,6 +85,7 @@ describe('PokedexComponent', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
     jest.resetAllMocks();
   });
@@ -112,7 +118,7 @@ describe('PokedexComponent', () => {
     });
 
     it('makes a fetch call if any data does not already exist in localstorage', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
       getItemSpy.mockReturnValueOnce(null);
 
       fetchMockData(fetchMockSpy);
@@ -120,7 +126,10 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
 
       expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
@@ -128,7 +137,7 @@ describe('PokedexComponent', () => {
     });
 
     it('makes a fetch call if the correct pokemon data does not already exist in localstorage', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
       const existingData = [
         {
           entry_number: 13,
@@ -146,8 +155,10 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
       );
@@ -155,7 +166,7 @@ describe('PokedexComponent', () => {
     });
 
     it('does not make any fetch calls if the data is in localstorage', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
       const existingData = [
         {
           entry_number: 1,
@@ -172,13 +183,16 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
 
       expect(fetchMockSpy).not.toHaveBeenCalled();
     });
 
     it('it saves the pokemon object in local storage if it was not already saved', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
       getItemSpy.mockReturnValueOnce(null);
 
       fetchMockData(fetchMockSpy);
@@ -194,8 +208,10 @@ describe('PokedexComponent', () => {
       };
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       expect(fetchMockSpy).toHaveBeenCalledTimes(2);
       expect(fetchMockSpy).toHaveBeenCalledWith(
         'https://pokeapi.co/api/v2/pokemon-species/1/'
@@ -211,7 +227,7 @@ describe('PokedexComponent', () => {
     });
 
     it('it retrieves the pokemon object from local storage if it was already saved', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
       const expectedLocalstorageData: LocalStorageDataModel[] = [
         {
           entry_number: 1,
@@ -229,15 +245,17 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       expect(getItemSpy).toHaveReturnedWith(
         JSON.stringify(expectedLocalstorageData)
       );
     });
 
     it('outputs an error if the pokemon species api call fails', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
 
       getItemSpy.mockReturnValueOnce(null);
       fetchMockSpy.mockRejectedValueOnce(new Error(SPECIES_ERROR_MESSAGE));
@@ -245,13 +263,15 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       expect(consoleErrorSpy).toHaveBeenCalledWith(SPECIES_ERROR_MESSAGE);
     });
 
     it('outputs an error if the pokemon api call fails', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
 
       getItemSpy.mockReturnValueOnce(null);
 
@@ -265,29 +285,65 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       expect(consoleErrorSpy).toHaveBeenCalledWith(POKEMON_ERROR_MESSAGE);
     });
-  });
 
-  describe('Pokedex Screen', () => {
-    it('renders the pokedex screen component if there is a current pokemon set', async () => {
-      const user = userEvent.setup();
+    it('waits 3 seconds before displaying the new pokemon', async () => {
+      const user = userEventSetup();
+      const expectedLocalstorageData: LocalStorageDataModel[] = [
+        {
+          entry_number: 1,
+          name: 'Bulbasaur',
+          flavorText: 'plant boy',
+          soundFile: 'cry url',
+          sprite: 'http://spriteurl.com'
+        }
+      ];
+
+      getItemSpy.mockReturnValueOnce(JSON.stringify(expectedLocalstorageData));
 
       fetchMockData(fetchMockSpy);
 
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
+      let sprite;
+
+      await act(async () => {
+        await user.click(button);
+        sprite = screen.queryByTestId('pokedex-screen-sprite');
+        expect(sprite).not.toBeInTheDocument();
+        jest.runAllTimers();
+      });
+
+      expect(sprite).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Pokedex Screen', () => {
+    it('renders the pokedex screen component if there is a current pokemon set', async () => {
+      const user = userEventSetup();
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       const pokedexScreen = await screen.findByTestId('pokedex-screen');
 
       expect(pokedexScreen).toBeVisible();
     });
 
     it('renders the pokedex screen image with the correct attributes', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
 
       const expectedLocalstorageData: LocalStorageDataModel[] = [
         {
@@ -306,8 +362,10 @@ describe('PokedexComponent', () => {
       render(<PokedexComponent kantoPokedex={mockPokedex} />);
 
       const button = screen.getByTestId('scan-button');
-      await user.click(button);
-
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
       const pokedexSprite = screen.queryByTestId('pokedex-screen-sprite');
 
       expect(pokedexSprite).toHaveAttribute('src');
@@ -315,7 +373,7 @@ describe('PokedexComponent', () => {
     });
 
     it('does not render the pokedex screen component if there is no pokemon set', async () => {
-      const user = userEvent.setup();
+      const user = userEventSetup();
 
       fetchMockData(fetchMockSpy);
 
@@ -324,6 +382,85 @@ describe('PokedexComponent', () => {
       const pokedexScreen = screen.queryByTestId('pokedex-screen');
 
       expect(pokedexScreen).toBeNull();
+    });
+
+    it('clears the screen when the scan button is clicked again', async () => {
+      const user = userEventSetup();
+
+      getItemSpy.mockReturnValueOnce(null);
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
+
+      let pokedexScreen = screen.queryByTestId('pokedex-screen-sprite');
+      expect(pokedexScreen).toBeVisible();
+
+      await user.click(button);
+      pokedexScreen = screen.queryByTestId('pokedex-screen-sprite');
+      expect(pokedexScreen).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Scan Light', () => {
+    // beforeEach(() => {
+    //   jest.runAllTimers();
+    // });
+
+    // afterEach(() => {
+    //   jest.useRealTimers();
+    // });
+
+    it('renders the scan light', () => {
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const scanLight = screen.queryByTestId('scan-light');
+
+      expect(scanLight).toBeVisible();
+    });
+
+    it('adds the blink class when the scan button as been clicked', async () => {
+      const user = userEventSetup();
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await user.click(button);
+
+      const scanLight = screen.queryByTestId('scan-light');
+    });
+  });
+
+  describe('Information', () => {
+    it('renders the information when the scan button is clicked', async () => {
+      const user = userEventSetup();
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
+      const information = screen.queryByTestId('information');
+
+      expect(information).toBeVisible();
+    });
+
+    it('does not render the inforamation before the scan button is clicked', () => {
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const information = screen.queryByTestId('information');
+
+      expect(information).not.toBeInTheDocument();
     });
   });
 });

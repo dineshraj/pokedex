@@ -12,34 +12,43 @@ import { useState } from 'react';
 import { POKEMON_ERROR_MESSAGE, SPECIES_ERROR_MESSAGE } from '../constants';
 import { PokemonSpecies } from 'pokenode-ts';
 import Screen from './Screen';
+import ScanLight from './ScanLight';
+import Information from './Information';
 
 interface PokedexComponentProps {
   kantoPokedex: KantoPokedex[];
 }
 
 const imageStyle = {
-  width: 'auto',
+  width: '100%',
   height: '100%',
   maxWidth: 'fit-content',
   filter: 'drop-shadow(0px 0px 100px #27272c)'
 };
 
-// !Reminder - parameterized for easy mocking
+// ? reminder - parameterized for easy mocking
 const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
   let randomPokemonNumber: number;
   const [currentPokemon, setCurrentPokemon] = useState<LocalStorageDataModel>();
+  const [loadingPokemon, setLoadingPokemon] = useState<boolean>(false);
 
-  const clickHandler = () => {
+  const clickHandler = async () => {
+    setLoadingPokemon(true);
     randomPokemonNumber = getRandomPokemonNumber();
     const localStoragePokemonData =
       checkPokemonIsInLocalStorage(randomPokemonNumber);
 
     if (localStoragePokemonData) {
-      // don't request, just set localstorage data to stat3
+      // don't request, just set localstorage data to state
       setCurrentPokemon(localStoragePokemonData);
     } else {
-      setPokemon(randomPokemonNumber);
+      await setPokemon(randomPokemonNumber);
     }
+
+    //? fake delay to make it more exciting - this will make the light will blink
+    setTimeout(async () => {
+      setLoadingPokemon(false);
+    }, 3000);
   };
 
   const setPokemon = async (randomPokemonNumber: number) => {
@@ -79,35 +88,80 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
         sprite: pokemonData.sprites.front_default!
       };
 
-      savePokemonToLocalstorage(dataToStore);
       setCurrentPokemon(dataToStore);
+      savePokemonToLocalstorage(dataToStore);
     }
   };
 
+  // pokedex: h-[80vh]
+
   return (
     <div
-      className="pokedex relative flex w-[80vw] h-[80vh] justify-center"
+      // className="pokedex relative flex justify-center items-center"
+      // style={{
+      //   aspectRatio: 1.32 // preserves your image’s aspect ratio
+      // }}
+      className="relative items-center justify-center flex w-[min(80vw,80vh)] aspect-[300/227]"
       data-testid="pokedex"
     >
-      <div className="pokedex-elements relative w=[100%] h=[100%]">
+      {/* <div> */}
         <Image
           src="/pokedex.svg"
           data-testid="pokedex-image"
           alt="pokedex"
           priority
-          width="50"
-          height="50"
-          style={imageStyle}
+          // width="50"
+          // height="50"
+          fill
+          className="object-contain"
+          // style={imageStyle}
         />
+      {/* </div> */}
+
+      {/* <div /*className="pokedex-elements relative h-[100%] w-[100%] flex justify-center">*/}
+
+      <ScanLight loading={loadingPokemon} />
+      
         {currentPokemon && (
           <Screen
-            name={currentPokemon.name}
-            spriteUrl={currentPokemon.sprite}
+          loading={loadingPokemon}
+          name={currentPokemon.name}
+          spriteUrl={currentPokemon.sprite}
           />
-        )}
-        <Button clickHandler={clickHandler} />
-      </div>
+          )}
+          <Button clickHandler={clickHandler} buttonDisabled={loadingPokemon} />
+          {currentPokemon && <Information name={currentPokemon.name} />}
     </div>
+    // <div
+    //   className="pokedex flex w-[80vw] h-auto justify-center items-center"
+    //   data-testid="pokedex"
+    // >
+    //   <div className="">
+    //     {/* <div className="pokedex-elements relative h-[100%] w-[100%] flex justify-center"> */}
+    //       <Image
+    //         src="/pokedex.svg"
+    //         data-testid="pokedex-image"
+    //         alt="pokedex"
+    //         priority
+    //         // width="50"
+    //         // height="50"
+    //         fill
+    //         className="object-contain drop-shadow-[0_0_100px_#27272c]"
+    //         // style={imageStyle}
+    //       />
+    //       <ScanLight loading={loadingPokemon} />
+    //       {currentPokemon && (
+    //         <Screen
+    //           loading={loadingPokemon}
+    //           name={currentPokemon.name}
+    //           spriteUrl={currentPokemon.sprite}
+    //         />
+    //       )}
+    //       <Button clickHandler={clickHandler} buttonDisabled={loadingPokemon} />
+    //       {currentPokemon && <Information name={currentPokemon.name} />}
+    //     </div>
+    //   {/* </div> */}
+    // </div>
   );
 };
 

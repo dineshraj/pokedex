@@ -1,19 +1,17 @@
 // import { GameClient } from 'pokenode-ts';
 import PokedexComponent from './components/Pokedex';
-import '../styles/page.scss';
 // import { POKEDEX } from './constants';
 import kantoPokedex from '../data/pokedex'; //! local data for ease
 
 const Page = /*async*/ (/*{ api = new GameClient() }: PageProps */) => {
-  // const pokedex = await api.getPokedexById(POKEDEX); // this is now json
+  // const pokedex = await api.getPokedexById (POKEDEX); // this is now json
 
   return (
-    <div data-testid="page">
-      <div className="flex items-center min-h-screen justify-center">
-        {/* <div className="pokedex-container relative"> */}
-        <PokedexComponent kantoPokedex={kantoPokedex} />
-      </div>
-      {/* </div> */}
+    <div
+      data-testid="page"
+      className="page flex items-center justify-center min-h-screen"
+    >
+      <PokedexComponent kantoPokedex={kantoPokedex} />
     </div>
   );
 };

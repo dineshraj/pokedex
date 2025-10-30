@@ -5,7 +5,7 @@ import Screen from '@/src/app/components/Screen';
 describe('Screen', () => {
   describe('rendering', () => {
     it('renders the pokedex component', () => {
-      render(<Screen spriteUrl="/hi" name="" />);
+      render(<Screen loading={true} spriteUrl="/hi" name="" />);
 
       const screenComponent = screen.getByTestId('pokedex-screen');
 
@@ -13,7 +13,7 @@ describe('Screen', () => {
     });
 
     it('renders a sprite with the correct url', () => {
-      render(<Screen spriteUrl="/my-url" name="hi" />);
+      render(<Screen loading={false} spriteUrl="/my-url" name="hi" />);
 
       const image = screen.getByTestId('pokedex-screen-sprite');
 
@@ -21,7 +21,7 @@ describe('Screen', () => {
     });
 
     it('has an alt attribute with the pokemon name', () => {
-      render(<Screen spriteUrl="/hi" name="charmander" />);
+      render(<Screen loading={false} spriteUrl="/hi" name="charmander" />);
 
       const image = screen.getByTestId('pokedex-screen-sprite');
 
