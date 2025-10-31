@@ -8,7 +8,6 @@ import {
 } from '@/src/app/constants';
 import { LocalStorageDataModel, PokemonUpdated } from '@/src/app/types';
 import { PokemonSpecies, PokemonSprites } from 'pokenode-ts';
-// import getRandomPokemonNumber from '@/src/lib/pokemonNumber';
 
 jest.mock('../../../src/lib/pokemonNumber', () => {
   return () => 1;
@@ -462,5 +461,49 @@ describe('PokedexComponent', () => {
 
       expect(information).not.toBeInTheDocument();
     });
+
+    it('displays the pokemon name only after the timeout has run', async () => {
+      const user = userEventSetup();
+
+      getItemSpy.mockReturnValueOnce(null);
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+
+      await act(async () => {
+        await user.click(button);
+        jest.runAllTimers();
+      });
+
+      let pokedexScreen = screen.queryByTestId('information');
+      expect(pokedexScreen).toBeVisible();
+
+      await user.click(button);
+      pokedexScreen = screen.queryByTestId('information');
+      expect(pokedexScreen).not.toHaveTextContent('bulbasaur');
+    });
+  });
+
+  describe.only('Dots', () => {
+    it('renders the dots when the timer is running', async () => {
+      const user = userEventSetup();
+
+      getItemSpy.mockReturnValueOnce(null);
+
+      fetchMockData(fetchMockSpy);
+
+      render(<PokedexComponent kantoPokedex={mockPokedex} />);
+
+      const button = screen.getByTestId('scan-button');
+      await user.click(button);
+
+      const dots = screen.queryByTestId('dots');
+      expect(dots).toBeVisible();
+    });
+
+    it('does not renders the dots when the timer is finished', () => {});
   });
 });

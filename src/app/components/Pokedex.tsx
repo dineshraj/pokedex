@@ -14,6 +14,7 @@ import { PokemonSpecies } from 'pokenode-ts';
 import Screen from './Screen';
 import ScanLight from './ScanLight';
 import Information from './Information';
+import Dots from './Dots';
 
 interface PokedexComponentProps {
   kantoPokedex: KantoPokedex[];
@@ -97,71 +98,30 @@ const PokedexComponent = ({ kantoPokedex }: PokedexComponentProps) => {
 
   return (
     <div
-      // className="pokedex relative flex justify-center items-center"
-      // style={{
-      //   aspectRatio: 1.32 // preserves your image’s aspect ratio
-      // }}
-      className="relative items-center justify-center flex w-[min(80vw,80vh)] aspect-[300/227]"
+      className="relative items-center justify-center flex w-[min(90vw,90vh)] aspect-[300/227]"
       data-testid="pokedex"
     >
-      {/* <div> */}
-        <Image
-          src="/pokedex.svg"
-          data-testid="pokedex-image"
-          alt="pokedex"
-          priority
-          // width="50"
-          // height="50"
-          fill
-          className="object-contain"
-          // style={imageStyle}
-        />
-      {/* </div> */}
-
-      {/* <div /*className="pokedex-elements relative h-[100%] w-[100%] flex justify-center">*/}
-
+      <Image
+        src="/pokedex.svg"
+        data-testid="pokedex-image"
+        alt="pokedex"
+        priority
+        fill
+        className="drop-shadow-[0px_30px_100px_#27272c]"
+      />
       <ScanLight loading={loadingPokemon} />
-      
-        {currentPokemon && (
-          <Screen
+      {currentPokemon && (
+        <Screen
           loading={loadingPokemon}
           name={currentPokemon.name}
           spriteUrl={currentPokemon.sprite}
-          />
-          )}
-          <Button clickHandler={clickHandler} buttonDisabled={loadingPokemon} />
-          {currentPokemon && <Information name={currentPokemon.name} />}
+        />
+      )}
+      <Button clickHandler={clickHandler} buttonDisabled={loadingPokemon} />
+
+      {loadingPokemon && <Dots />}
+      {(!loadingPokemon && currentPokemon) && <Information loading={loadingPokemon} name={currentPokemon.name} description={currentPokemon.flavorText} />}
     </div>
-    // <div
-    //   className="pokedex flex w-[80vw] h-auto justify-center items-center"
-    //   data-testid="pokedex"
-    // >
-    //   <div className="">
-    //     {/* <div className="pokedex-elements relative h-[100%] w-[100%] flex justify-center"> */}
-    //       <Image
-    //         src="/pokedex.svg"
-    //         data-testid="pokedex-image"
-    //         alt="pokedex"
-    //         priority
-    //         // width="50"
-    //         // height="50"
-    //         fill
-    //         className="object-contain drop-shadow-[0_0_100px_#27272c]"
-    //         // style={imageStyle}
-    //       />
-    //       <ScanLight loading={loadingPokemon} />
-    //       {currentPokemon && (
-    //         <Screen
-    //           loading={loadingPokemon}
-    //           name={currentPokemon.name}
-    //           spriteUrl={currentPokemon.sprite}
-    //         />
-    //       )}
-    //       <Button clickHandler={clickHandler} buttonDisabled={loadingPokemon} />
-    //       {currentPokemon && <Information name={currentPokemon.name} />}
-    //     </div>
-    //   {/* </div> */}
-    // </div>
   );
 };
 

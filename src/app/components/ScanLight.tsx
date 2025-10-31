@@ -11,6 +11,7 @@ const ScanLight = ({ loading }: { loading: boolean }) => {
       <div data-testid="scan-light" className={className} />
       <div
         data-testid="scan-light-highlight"
+        className="absolute w-[4.2%] h-[5.1%] bg-white rounded-full top-[5.1%] right-[87.5%]"
       />
     </>
   );
